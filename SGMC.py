@@ -77,6 +77,12 @@ L_col = Tensor(csgraph.laplacian(A_col, normed=True))
 g_row = 0.001
 g_col = 0.001
 
+if g_row == 0.0 and g_col == 0.0:
+    method = 'DMF'
+else:
+    method = 'SGMC'
+
+
 # m, n, k
 n_ = Y.shape[0]
 m_ = Y.shape[1]
@@ -117,9 +123,9 @@ for iter in range(num_iters):
         lr /= 2
     train_rmse = sqrt(train_loss.detach().item() / sum(Omega_np))
     test_rmse = sqrt(total_loss.detach().item() / sum(Omega_test_np))
-    if iter % 20 == 0:
+    if iter % 200 == 0:
         print(f"Iter {iter}: Train loss: {train_loss}, Dir row: {dir_row}, Dir col: {dir_col}"
               f" Train RMSE: {train_rmse}, Test RMSE: {test_rmse}")
 
     if iter % 50000 == 0:
-        savemat(DS_PATH[:-5]+f"_Y3_{iter}_SGMC.mat", {'y3': Y_hat.cpu().detach().numpy()})
+        savemat(DS_PATH[:-6]+f"_Y3_{iter}_{method}.mat", {'y3': Y_hat.cpu().detach().numpy()})
