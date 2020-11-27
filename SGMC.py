@@ -5,13 +5,16 @@ from torch import sum as th_sum
 from matplotlib.pyplot import matshow, gca, axes, show, figure, savefig
 from typing import Tuple, Dict
 from numpy import load as load_npy
+from numpy import asarray, float32, logical_and
 from numpy import save as save_npy
 from numpy.linalg import matrix_rank
 from numpy import ndarray, sum, sqrt, arange, exp
-from sklearn.metrics.pairwise import cosine_distances
 from scipy.sparse import csgraph
+from scipy.io import loadmat, savemat
 
-DS_PATH = "data/small/10p/"
+# MGRNNforDTI - Drug-target interaction datasets
+# e, gpcr, ic, nr
+DS_PATH = "./MGRNNMforDTI/data_for_DMF/data_1_mgrnnm_e.mat"
 
 
 def dispmat(m: ndarray, display=False, save=False, filename='M'):
@@ -22,6 +25,19 @@ def dispmat(m: ndarray, display=False, save=False, filename='M'):
         show()
     if save:
         savefig(filename+'.png', dpi=600)
+
+
+def load_matlab_file(path_file, name_field):
+    """
+    load '.mat' files
+    inputs:
+        path_file, string containing the file path.
+        name_field, string containig the field name.
+    """
+    db = loadmat(path_file)
+    ds = db[name_field]
+    out = asarray(ds).astype(float32).T
+    return out
 
 
 class DMF(Module):
@@ -36,24 +52,30 @@ class DMF(Module):
 
 
 # incomplete matrix
-Y_np = load_npy(DS_PATH+"Y_rec_10p.npy")
+Y_np = load_matlab_file(DS_PATH, 'y2')
 Y = Tensor(Y_np)
 
 # GT full matrix
-M_np = load_npy(DS_PATH+"M_rec_10p.npy")
+M_np = load_matlab_file(DS_PATH, 'Y')
 M = Tensor(M_np)
 
-# Mask
+A_row = load_matlab_file(DS_PATH, 'St')
+A_col = load_matlab_file(DS_PATH, 'Sd')
+
+# Train mask
 Omega_np = (Y_np != 0).astype(float)
 Omega = Tensor(Omega_np)
 
+# Test mask
+Omega_test_np = logical_and(M_np != 0, M_np != Y_np).astype(float)
+Omega_test = Tensor(Omega_test_np)
+
 # graphs
-L_row = Tensor(csgraph.laplacian(row_graph(cosine_distances(Y_np),
-                                           k=10), normed=True))
-L_col = Tensor(csgraph.laplacian(column_graph(Y_np.shape[1],
-                                              weights=[i for i in exp(-arange(5))])))
-g_row = 0.0
-g_col = 0.0001
+L_row = Tensor(csgraph.laplacian(A_row, normed=True))
+L_col = Tensor(csgraph.laplacian(A_col, normed=True))
+
+g_row = 0.001
+g_col = 0.001
 
 # m, n, k
 n_ = Y.shape[0]
@@ -69,12 +91,13 @@ if use_gpu:
     M = M.cuda()
     model.cuda()
     Omega = Omega.cuda()
+    Omega_test = Omega_test.cuda()
     L_row = L_row.cuda()
     L_col = L_col.cuda()
 
 # Optimization parameters
-num_iters = 10**5
-lr = 10**(-5)
+num_iters = 20**5
+lr = 10**(-4)
 
 # Optimizer
 opt = SGD(model.parameters(), lr=lr)
@@ -89,12 +112,14 @@ for iter in range(num_iters):
     loss = train_loss + g_row * dir_row + g_col * dir_col
     loss.backward()
     opt.step()
-    total_loss = th_sum((M - Y_hat)**2)
+    total_loss = th_sum((Omega_test*(M - Y_hat))**2)
     if iter > 100:
         lr /= 2
     train_rmse = sqrt(train_loss.detach().item() / sum(Omega_np))
-    total_rmse = sqrt(total_loss.detach().item() / (n_ * m_))
+    test_rmse = sqrt(total_loss.detach().item() / sum(Omega_test_np))
     if iter % 20 == 0:
         print(f"Iter {iter}: Train loss: {train_loss}, Dir row: {dir_row}, Dir col: {dir_col}"
-              f" Train RMSE: {train_rmse}, Total RMSE: {total_rmse}")
-        save_npy(f"Y_hat_10p_{iter}_SGMC_col.npy", Y_hat.cpu().detach().numpy())
+              f" Train RMSE: {train_rmse}, Test RMSE: {test_rmse}")
+
+    if iter % 50000 == 0:
+        savemat(DS_PATH[:-5]+f"_Y3_{iter}_SGMC.mat", {'y3': Y_hat.cpu().detach().numpy()})

@@ -1,4 +1,4 @@
-function [auc_res,aupr_res]=nfold(Y,seed,k)
+function [auc_res,aupr_res]=nfold(Y,seed,k,dataset_name)
 %
 
 % This is a helper function of crossValidation.m. Depending on the
@@ -18,6 +18,7 @@ function [auc_res,aupr_res]=nfold(Y,seed,k)
 %
 
     global predictionMethod cv_setting n ds gridSearchMode
+    global Sd St
 
     [num_drugs,num_targets] = size(Y);
     if strcmp(cv_setting,'S1')
@@ -75,8 +76,18 @@ function [auc_res,aupr_res]=nfold(Y,seed,k)
         y2 = Y;
         y2(test_ind) = 0;   % test set = ZERO
         fprintf('*');       % progress indicator
+        
+        % reconstruction method
         y3 = alg_template(y2,predictionMethod,test_ind,left_out); % predict! (y3 is the predicted matrix)
-
+        
+        % save for dmf
+        s1.y2 = y2;
+        s1.Y = Y;
+        s1.y3 = y3;
+        s1.Sd = Sd;
+        s1.St = St;
+        f_name = strcat('data_for_DMF/data_', num2str(i), '_', predictionMethod, '_', dataset_name, '.mat');
+        save(f_name, '-struct', 's1');
 
         % compute evaluation metrics based on obtained prediction scores
         AUCs(i)  = calculate_auc (y3(test_ind),Y(test_ind));
