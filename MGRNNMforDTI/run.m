@@ -28,8 +28,8 @@ path='data\';
 datasets = {'e','ic','gpcr','nr'} %,'movielens_100k','metabolic'};
 
 % CV parameters
-m = 2;  % number of n-fold experiments (repetitions)
-n = 2;%5;%10; % the 'n' in "n-fold experiment"
+m = 1;  % number of n-fold experiments (repetitions)
+n = 2;  % 5;%10; % the 'n' in "n-fold experiment"
 
 %-------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ for cvs=[1 2 3]
   
         % run chosen selection method and output CV results
         auprlist=[]; auprstdlist=[]; auclist=[]; aucstdlist=[];
-        for ds=[4 3 2 1]
+        for ds=[1 2]%[4 3 2 1]
             getParameters(predictionMethod, cv_setting, ds);
             disp('-----------------------');
 

@@ -69,7 +69,7 @@ function [aupr,aupr_std, auc, auc_std]=crossValidation(Y, dataset_name)
     AUPRs = zeros(1,m);
     for i=1:m
         seed = seeds(i);
-        [AUCs(i), AUPRs(i)] = nfold(Y,seed,i, dataset_name);
+        [AUCs(i), AUPRs(i)] = nfold(Y,seed,i, dataset_name, cv_setting);
     end
 
     if gridSearchMode
