@@ -28,3 +28,7 @@ Run kmeans clustering algorithm after applying PCA on scRNA-seq data
 > end <br/>
 > avg_ari_ni=mean(list_ni)<br/>
 > avg_ari_mc=mean(list_mc)<br/>
+
+
+Raw datasets can be downloaded from here: 
+https://drive.google.com/drive/folders/1MHKeRf9A7QL4O1TrMGxIc8SVcA_woGww?usp=sharing
