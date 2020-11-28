@@ -13,7 +13,7 @@ global predictionMethod gridSearchMode
 
 gridSearchMode = 0;   % grid search mode?
 
-predictionMethods = {'mgrnnm'};
+predictionMethods = {'mgrnnm', 'rls_wnn', 'grmf', 'cmf', 'mc'};
 
 warning off
 
@@ -25,11 +25,11 @@ global m n Sd St ds cv_setting
 path='data\';
 
 % the different datasets
-datasets = {'e','ic','gpcr','nr'} %,'movielens_100k','metabolic'};
+datasets = {'gpcr','ic','e','nr'} %,'movielens_100k','metabolic'};
 
 % CV parameters
-m = 1;  % number of n-fold experiments (repetitions)
-n = 2;  % 5;%10; % the 'n' in "n-fold experiment"
+m = 5;  % number of n-fold experiments (repetitions)
+n = 10;  % 5;%10; % the 'n' in "n-fold experiment"
 
 %-------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ for cvs=[1 2 3]
   
         % run chosen selection method and output CV results
         auprlist=[]; auprstdlist=[]; auclist=[]; aucstdlist=[];
-        for ds=[1 2]%[4 3 2 1]
+        for ds=[3 4]%[4 3 2 1]
             getParameters(predictionMethod, cv_setting, ds);
             disp('-----------------------');
 

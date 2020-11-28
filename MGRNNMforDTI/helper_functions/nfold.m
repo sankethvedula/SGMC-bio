@@ -78,45 +78,48 @@ function [auc_res,aupr_res]=nfold(Y,seed,k,dataset_name, cv_setting)
         y2(test_ind) = 0;   % test set = ZERO
         fprintf('*');       % progress indicator
                 
-        f_name = strcat('data_for_DMF/data_', num2str(i), '_', ...
-                         predictionMethod, '_', dataset_name, '_', ...
-                         cv_setting, '.mat');
+        f_name = strcat('data_for_DMF/data_',...
+                        'fold_', num2str(i), ...
+                        'rep_', num2str(k), '_', ...
+                        predictionMethod, '_',...
+                        dataset_name, '_', ...
+                        cv_setting, '.mat');
         W_train = ones(size(Y));
         W_test  = zeros(size(Y));
         
         W_train(test_ind) = 0;    % train mask
         W_test (test_ind) = 1;    % test mask
         
-%         % reconstruction method
-%         y3 = alg_template(y2,predictionMethod,test_ind,left_out); % predict! (y3 is the predicted matrix)
-%         
-%         % save for dmf
-%         s1.y2 = y2;
-%         s1.Y = Y;
-%         s1.y3 = y3;
-%         s1.Sd = preprocess_PNN(Sd, 5);
-%         s1.St = preprocess_PNN(St, 5);
-%         s1.left_out = left_out;
-%         s1.test_ind = test_ind;
-%         s1.omega_train = W_train;
-%         s1.omega_test  = W_test;
-%         save(f_name, '-struct', 's1');
-
-        s2 = load(f_name);
-        y2 = s2.y2;
-        Y  = s2.Y;
-        y3 = s2.y3;
-        Sd = s2.Sd;
-        St = s2.St;
-        left_out = s2.left_out;
-        test_ind = s2.test_ind;
-
-        sgmc_iter = 436000;
-        y3_ = load(strcat('data_for_DMF/data_', num2str(i), ...
-                    '_', predictionMethod, '_', dataset_name, '_', ...
-                    'S3_Y3_', num2str(sgmc_iter),'_SGMC.mat'));
-        y3_ = y3_.y3';
+        % reconstruction method
+        y3 = alg_template(y2,predictionMethod,test_ind,left_out); % predict! (y3 is the predicted matrix)
         
+        % save for dmf
+        s1.y2 = y2;
+        s1.Y = Y;
+        s1.y3 = y3;
+        s1.Sd = preprocess_PNN(Sd, 5);
+        s1.St = preprocess_PNN(St, 5);
+        s1.left_out = left_out;
+        s1.test_ind = test_ind;
+        s1.omega_train = W_train;
+        s1.omega_test  = W_test;
+        save(f_name, '-struct', 's1');
+
+%         s2 = load(f_name);
+%         y2 = s2.y2;
+%         Y  = s2.Y;
+%         y3 = s2.y3;
+%         Sd = s2.Sd;
+%         St = s2.St;
+%         left_out = s2.left_out;
+%         test_ind = s2.test_ind;
+% 
+%         sgmc_iter = 1020000;
+%         y3_ = load(strcat('data_for_DMF/data_', num2str(i), ...
+%                     '_', predictionMethod, '_', dataset_name, '_', ...
+%                     'S1_Y3_', num2str(sgmc_iter),'_SGMC.mat'));
+%         y3_ = y3_.y3';
+%         
         % compute evaluation metrics based on obtained prediction scores
         AUCs(i)  = calculate_auc (y3(test_ind),Y(test_ind));
         AUPRs(i) = calculate_aupr(y3(test_ind),Y(test_ind));
