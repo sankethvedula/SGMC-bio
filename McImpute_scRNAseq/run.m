@@ -6,11 +6,11 @@ data_dir='data/'%'D:/AanchalMongia_phdClg/Phd/DATA_SINGLE_CELL/'
 addpath(genpath('Dependencies')); 
 addpath(genpath('functions')); 
 
-dataname='Preimplantation'
+dataname='Zeisel'
   
  %% Data read
 if(strcmp(dataname, 'Usoskin') | strcmp(dataname,'Zeisel') )
-    data=csvread([data_dir 'raw_data/' dataname '_raw_data.csv'],1,1)' ;
+    data=csvread([data_dir 'raw_data/' dataname '_dataset/' dataname '_raw_data.csv'],1,1)' ;
 else
    sample_dir = [data_dir 'raw_data/' dataname '_dataset/hg19'];
    [data, gene_names, gene_ids, cells] = read_raw_10x( strcmp(dataname,'Preimplantation') ,sample_dir);% 0 for jurkat,1 for zygote
