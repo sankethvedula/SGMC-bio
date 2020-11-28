@@ -111,10 +111,10 @@ function [auc_res,aupr_res]=nfold(Y,seed,k,dataset_name, cv_setting)
         left_out = s2.left_out;
         test_ind = s2.test_ind;
 
-        sgmc_iter = 320000;
+        sgmc_iter = 436000;
         y3_ = load(strcat('data_for_DMF/data_', num2str(i), ...
                     '_', predictionMethod, '_', dataset_name, '_', ...
-                    cv_setting, '_Y3_', num2str(sgmc_iter),'_SGMC.mat'));
+                    'S3_Y3_', num2str(sgmc_iter),'_SGMC.mat'));
         y3_ = y3_.y3';
         
         % compute evaluation metrics based on obtained prediction scores

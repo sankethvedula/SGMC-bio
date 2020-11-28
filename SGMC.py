@@ -14,7 +14,7 @@ from scipy.io import loadmat, savemat
 
 # MGRNNforDTI - Drug-target interaction datasets
 # e, gpcr, ic, nr
-DS_PATH = "./MGRNNMforDTI/data_for_DMF/data_1_mgrnnm_e_S1.mat"
+DS_PATH = "./MGRNNMforDTI/data_for_DMF/data_1_mgrnnm_nr_S1.mat"
 
 
 def dispmat(m: ndarray, display=False, save=False, filename='M'):
