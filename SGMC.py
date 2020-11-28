@@ -14,7 +14,9 @@ from scipy.io import loadmat, savemat
 
 # MGRNNforDTI - Drug-target interaction datasets
 # e, gpcr, ic, nr
-DS_PATH = "./MGRNNMforDTI/data_for_DMF/data_1_mgrnnm_nr_S1.mat"
+experiment = 'DVA'  # MGRNNMforDTI
+f_name = 'data_1_gr1bmc_ppxa_1'
+DS_PATH = f"./{experiment}/data_for_DMF/{f_name}.mat"
 
 
 def dispmat(m: ndarray, display=False, save=False, filename='M'):
@@ -59,7 +61,7 @@ Y = Tensor(Y_np)
 M_np = load_matlab_file(DS_PATH, 'Y')
 M = Tensor(M_np)
 
-A_row = load_matlab_file(DS_PATH, 'St')
+A_row = load_matlab_file(DS_PATH, 'Sv')
 A_col = load_matlab_file(DS_PATH, 'Sd')
 
 # competitor
@@ -77,8 +79,8 @@ Omega_test = Tensor(Omega_test_np)
 L_row = Tensor(csgraph.laplacian(A_row, normed=True))
 L_col = Tensor(csgraph.laplacian(A_col, normed=True))
 
-g_row = 0.06
-g_col = 0.06
+g_row = 0.002
+g_col = 0.002
 
 if g_row == 0.0 and g_col == 0.0:
     method = 'DMF'
@@ -89,7 +91,7 @@ else:
 # m, n, k
 n_ = Y.shape[0]
 m_ = Y.shape[1]
-k_ = int(0.5*Y.shape[0])
+k_ = int(3*Y.shape[0])
 
 # Model initialization
 model = DMF(n=n_, m=m_, k=k_)
@@ -107,7 +109,7 @@ if use_gpu:
 
 # Optimization parameters
 num_iters = 20**5
-lr = 10**(-4)
+lr = 5*10**(-3)
 
 # Optimizer
 opt = SGD(model.parameters(), lr=lr)

@@ -14,7 +14,7 @@ Y=mat;
 addpath(genpath('helper_functions'));
 
 %----define parameters----
-n = 10;% 'n' in "n-fold experiment"
+n = 2;% 'n' in "n-fold experiment"
 global f_roc f_pr
 
 %tic
