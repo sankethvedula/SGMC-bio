@@ -70,7 +70,7 @@ else:
     method = 'SGMC'
 
 # Optimization parameters
-num_iters = 16*10 ** 3
+num_iters = 25*10 ** 3
 lr = 4*10 ** (-3)
 
 for fold_num in range(1, num_folds+1):
